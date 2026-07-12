@@ -30,21 +30,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialisticTheme {
-                MaterialSurface {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     DesktopScreen()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun MaterialSurface(content: @Composable () -> Unit) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        content()
     }
 }
 
@@ -165,4 +158,79 @@ fun AppIcon(app: AppItem) {
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = app.name,
-            style = MaterialTheme.typogr
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+fun Dock(modifier: Modifier = Modifier) {
+    val dockApps = listOf(
+        AppItem("Browser", Icons.Filled.Language),
+        AppItem("Messages", Icons.Filled.Message),
+        AppItem("Photos", Icons.Filled.PhotoLibrary),
+        AppItem("Music", Icons.Filled.MusicNote),
+    )
+
+    Surface(
+        modifier = modifier
+            .height(88.dp)
+            .clip(RoundedCornerShape(24.dp)),
+        color = MaterialTheme.colorScheme.secondaryContainer
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            dockApps.forEach { app ->
+                AppIconDock(app)
+            }
+        }
+    }
+}
+
+@Composable
+fun AppIconDock(app: AppItem) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primary),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = app.icon,
+                contentDescription = app.name,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun rememberCurrentTime(): String {
+    var timeText by remember { mutableStateOf(formatTime()) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(1000L)
+            timeText = formatTime()
+        }
+    }
+
+    return timeText
+}
+
+private fun formatTime(): String {
+    val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+    return sdf.format(Date())
+}
