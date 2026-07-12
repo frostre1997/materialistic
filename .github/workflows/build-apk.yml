@@ -25,6 +25,9 @@ jobs:
           # Use Gradle to generate wrapper files if missing
           gradle wrapper --gradle-version 8.7 || true
 
+      - name: Ensure gradlew is executable
+        run: chmod +x gradlew
+
       - name: Build debug APK
         run: ./gradlew assembleDebug
 
