@@ -20,16 +20,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Generate Gradle wrapper
-        run: |
-          # Use Gradle to generate wrapper files if missing
-          gradle wrapper --gradle-version 8.7 || true
-
-      - name: Ensure gradlew is executable
-        run: chmod +x gradlew
-
-      - name: Build debug APK
-        run: ./gradlew assembleDebug
+      - name: Build debug APK with gradle
+        run: gradle assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
