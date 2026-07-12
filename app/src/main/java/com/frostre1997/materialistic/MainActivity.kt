@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.fillMaxSize
 import com.frostre1997.materialistic.ui.MaterialisticTheme
 
 class MainActivity : ComponentActivity() {
