@@ -1,65 +1,168 @@
-package com.frostre1997.materialistic.ui
+package com.frostre1997.materialistic
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.frostre1997.materialistic.ui.MaterialisticTheme
+import java.text.SimpleDateFormat
+import java.util.*
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF90CAF9),
-    secondary = Color(0xFF80CBC4),
-    tertiary = Color(0xFFA5D6A7)
-)
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF1976D2),
-    secondary = Color(0xFF26A69A),
-    tertiary = Color(0xFF66BB6A)
-)
-
-@Composable
-fun MaterialisticTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+ (API 31+)
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val context = LocalContext.current
-
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = Color.Transparent.toArgb()
-            WindowCompat.getInsetsController(window, view).apply {
-                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                isAppearanceLightStatusBars = !darkTheme
+        setContent {
+            MaterialisticTheme {
+                MaterialSurface {
+                    DesktopScreen()
+                }
             }
         }
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
 }
+
+@Composable
+fun MaterialSurface(content: @Composable () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun DesktopScreen() {
+    val currentTime = rememberCurrentTime()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Top bar: big clock
+        TopBar(
+            timeText = currentTime,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Main area: app grid
+        AppGrid(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Bottom dock
+        Dock(
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun TopBar(timeText: String, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier
+            .height(64.dp)
+            .clip(RoundedCornerShape(16.dp)),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = timeText,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+data class AppItem(
+    val name: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+)
+
+@Composable
+fun AppGrid(modifier: Modifier = Modifier) {
+    val apps = listOf(
+        AppItem("Browser", Icons.Filled.Language),
+        AppItem("Messages", Icons.Filled.Message),
+        AppItem("Photos", Icons.Filled.PhotoLibrary),
+        AppItem("Music", Icons.Filled.MusicNote),
+        AppItem("Maps", Icons.Filled.Map),
+        AppItem("Settings", Icons.Filled.Settings),
+    )
+
+    Surface(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp)),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 80.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(apps) { app ->
+                AppIcon(app)
+            }
+        }
+    }
+}
+
+@Composable
+fun AppIcon(app: AppItem) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = app.icon,
+                contentDescription = app.name,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = app.name,
+            style = MaterialTheme.typogr
