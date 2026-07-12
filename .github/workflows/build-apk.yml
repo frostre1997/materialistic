@@ -20,8 +20,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Generate Gradle wrapper
+        run: |
+          # Use Gradle to generate wrapper files if missing
+          gradle wrapper --gradle-version 8.7 || true
 
       - name: Build debug APK
         run: ./gradlew assembleDebug
